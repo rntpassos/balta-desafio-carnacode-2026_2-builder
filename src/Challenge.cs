@@ -35,60 +35,6 @@ namespace DesignPatternChallenge
         public string CompanyLogo { get; set; }
         public string WaterMark { get; set; }
 
-        // Problema: Construtor telescópico (muitos parâmetros)
-        public SalesReport(
-            string title,
-            string format,
-            DateTime startDate,
-            DateTime endDate,
-            bool includeHeader,
-            bool includeFooter,
-            string headerText,
-            string footerText,
-            bool includeCharts,
-            string chartType,
-            bool includeSummary,
-            List<string> columns,
-            List<string> filters,
-            string sortBy,
-            string groupBy,
-            bool includeTotals,
-            string orientation,
-            string pageSize,
-            bool includePageNumbers,
-            string companyLogo,
-            string waterMark)
-        {
-            Title = title;
-            Format = format;
-            StartDate = startDate;
-            EndDate = endDate;
-            IncludeHeader = includeHeader;
-            IncludeFooter = includeFooter;
-            HeaderText = headerText;
-            FooterText = footerText;
-            IncludeCharts = includeCharts;
-            ChartType = chartType;
-            IncludeSummary = includeSummary;
-            Columns = columns;
-            Filters = filters;
-            SortBy = sortBy;
-            GroupBy = groupBy;
-            IncludeTotals = includeTotals;
-            Orientation = orientation;
-            PageSize = pageSize;
-            IncludePageNumbers = includePageNumbers;
-            CompanyLogo = companyLogo;
-            WaterMark = waterMark;
-        }
-
-        // Alternativa problemática: Construtor vazio + setters
-        public SalesReport()
-        {
-            Columns = new List<string>();
-            Filters = new List<string>();
-        }
-
         public void Generate()
         {
             Console.WriteLine($"\n=== Gerando Relatório: {Title} ===");
@@ -116,84 +62,144 @@ namespace DesignPatternChallenge
         }
     }
 
+    public interface ISalesReportBuilder
+    {
+        void Title(string title);
+        void Format(string format);
+        void StartDate(DateTime startDate);
+        void EndDate(DateTime endDate);
+        void IncludeHeader(bool includeHeader);
+        void IncludeFooter(bool includeFooter);
+        void HeaderText(string headerText);
+        void FooterText(string footerText);
+        void IncludeCharts(bool includeCharts);
+        void ChartType(string chartType);
+        void IncludeSummary(bool includeSummary);
+        void Columns(List<string> columns);
+        void Filters(List<string> filters);
+        void SortBy(string sortBy);
+        void GroupBy(string groupBy);
+        void IncludeTotals(bool includeTotals);
+        void Orientation(string orientation);
+        void PageSize(string pageSize);
+        void IncludePageNumbers(bool includePageNumbers);
+        void CompanyLogo(string companyLogo);
+        void WaterMark(string waterMark);
+        SalesReport Build();
+    }
+
+    public class SalesReportBuilder : ISalesReportBuilder
+    {
+        private readonly SalesReport _report = new();
+        public void Title(string title) => _report.Title = title;
+        public void Format(string format) => _report.Format = format;
+        public void StartDate(DateTime startDate) => _report.StartDate = startDate;
+        public void EndDate(DateTime endDate) => _report.EndDate = endDate;
+        public void IncludeHeader(bool includeHeader) => _report.IncludeHeader = includeHeader;
+        public void IncludeFooter(bool includeFooter) => _report.IncludeFooter = includeFooter;
+        public void HeaderText(string headerText) => _report.HeaderText = headerText;
+        public void FooterText(string footerText) => _report.FooterText = footerText;
+        public void IncludeCharts(bool includeCharts) => _report.IncludeCharts = includeCharts;
+        public void ChartType(string chartType) => _report.ChartType = chartType;
+        public void IncludeSummary(bool includeSummary) => _report.IncludeSummary = includeSummary;
+        public void Columns(List<string> columns) => _report.Columns = columns;
+        public void Filters(List<string> filters) => _report.Filters = filters;
+        public void SortBy(string sortBy) => _report.SortBy = sortBy;
+        public void GroupBy(string groupBy) => _report.GroupBy = groupBy;
+        public void IncludeTotals(bool includeTotals) => _report.IncludeTotals = includeTotals;
+        public void Orientation(string orientation) => _report.Orientation = orientation;
+        public void PageSize(string pageSize) => _report.PageSize = pageSize;
+        public void IncludePageNumbers(bool includePageNumbers) => _report.IncludePageNumbers = includePageNumbers;
+        public void CompanyLogo(string companyLogo) => _report.CompanyLogo = companyLogo;
+        public void WaterMark(string waterMark) => _report.WaterMark = waterMark;
+        public SalesReport Build() => _report;
+    }
+
+    public class SalesReportDirector
+    {
+        public SalesReport BuildReport1(ISalesReportBuilder builder)
+        {
+            builder.Title("Vendas Mensais");
+            builder.Format("PDF");
+            builder.StartDate(new DateTime(2024, 1, 1));
+            builder.EndDate(new DateTime(2024, 1, 31));
+            builder.IncludeHeader(true);
+            builder.IncludeFooter(true);
+            builder.HeaderText("Relatório de Vendas");
+            builder.FooterText("Confidencial");
+            builder.IncludeCharts(true);
+            builder.ChartType("Bar");
+            builder.IncludeSummary(true);
+            builder.Columns(new List<string> { "Produto", "Quantidade", "Valor" });
+            builder.Filters(new List<string> { "Status=Ativo" });
+            builder.SortBy("Valor");
+            builder.GroupBy("Categoria");
+            builder.IncludeTotals(true);
+            builder.Orientation("Portrait");
+            builder.PageSize("A4");
+            builder.IncludePageNumbers(true);
+            builder.CompanyLogo("logo.png");
+            builder.WaterMark("Confidencial");
+            return builder.Build();
+        }
+        public SalesReport BuildReport2(ISalesReportBuilder builder)
+        {
+            builder.Title("Relatório Trimestral");
+            builder.Format("Excel");
+            builder.StartDate(new DateTime(2024, 1, 1));
+            builder.EndDate(new DateTime(2024, 3, 31));
+            builder.Columns(new List<string> { "Vendedor", "Região", "Total" });
+            builder.IncludeCharts(true);
+            builder.ChartType("Line");
+            builder.IncludeHeader(true);
+            builder.GroupBy("Região");
+            builder.IncludeTotals(true);
+            return builder.Build();
+        }
+        public SalesReport BuildReport3(ISalesReportBuilder builder)
+        {
+            builder.Title("Vendas Anuais");
+            builder.Format("PDF");
+            builder.StartDate(new DateTime(2024, 1, 1));
+            builder.EndDate(new DateTime(2024, 12, 31));
+            builder.IncludeHeader(true);
+            builder.HeaderText("Relatório de Vendas");
+            builder.IncludeFooter(true);
+            builder.FooterText("Confidencial");
+            builder.Columns(new List<string> { "Produto", "Quantidade", "Valor" });
+            builder.IncludeCharts(true);
+            builder.ChartType("Pie");
+            builder.IncludeTotals(true);
+            builder.Orientation("Landscape");
+            builder.PageSize("A4");
+            return builder.Build();
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("=== Sistema de Relatórios ===");
 
-            // Problema 1: Construtor com muitos parâmetros - difícil de ler e usar
-            var report1 = new SalesReport(
-                "Vendas Mensais",           // title
-                "PDF",                       // format
-                new DateTime(2024, 1, 1),   // startDate
-                new DateTime(2024, 1, 31),  // endDate
-                true,                        // includeHeader
-                true,                        // includeFooter
-                "Relatório de Vendas",      // headerText
-                "Confidencial",              // footerText
-                true,                        // includeCharts
-                "Bar",                       // chartType
-                true,                        // includeSummary
-                new List<string> { "Produto", "Quantidade", "Valor" },  // columns
-                new List<string> { "Status=Ativo" },  // filters
-                "Valor",                     // sortBy
-                "Categoria",                 // groupBy
-                true,                        // includeTotals
-                "Portrait",                  // orientation
-                "A4",                        // pageSize
-                true,                        // includePageNumbers
-                "logo.png",                  // companyLogo
-                "Confidencial"               // waterMark
-            );
-
+            var builder = new SalesReportBuilder();
+            var director = new SalesReportDirector();
+            var report1 = director.BuildReport1(builder);
             report1.Generate();
-
-            // Problema 2: Muitos setters - ordem não importa, pode esquecer configurações obrigatórias
-            var report2 = new SalesReport();
-            report2.Title = "Relatório Trimestral";
-            report2.Format = "Excel";
-            report2.StartDate = new DateTime(2024, 1, 1);
-            report2.EndDate = new DateTime(2024, 3, 31);
-            report2.Columns.Add("Vendedor");
-            report2.Columns.Add("Região");
-            report2.Columns.Add("Total");
-            report2.IncludeCharts = true;
-            report2.ChartType = "Line";
-            // Esqueci de configurar algo? O código compila mas pode falhar em runtime
-            report2.IncludeHeader = true;
-            // Esqueci o HeaderText? 
-            report2.GroupBy = "Região";
-            report2.IncludeTotals = true;
-
+            var report2 = director.BuildReport2(builder);
             report2.Generate();
-
-            // Problema 3: Relatórios com configurações parecidas exigem repetir muito código
-            var report3 = new SalesReport();
-            report3.Title = "Vendas Anuais";
-            report3.Format = "PDF";
-            report3.StartDate = new DateTime(2024, 1, 1);
-            report3.EndDate = new DateTime(2024, 12, 31);
-            report3.IncludeHeader = true;
-            report3.HeaderText = "Relatório de Vendas";
-            report3.IncludeFooter = true;
-            report3.FooterText = "Confidencial";
-            report3.Columns.Add("Produto");
-            report3.Columns.Add("Quantidade");
-            report3.Columns.Add("Valor");
-            report3.IncludeCharts = true;
-            report3.ChartType = "Pie";
-            report3.IncludeTotals = true;
-            report3.Orientation = "Landscape";
-            report3.PageSize = "A4";
-
+            var report3 = director.BuildReport3(builder);
             report3.Generate();
 
-            // Perguntas para reflexão:
+            // Respostas:
             // - Como criar relatórios complexos sem construtores gigantes?
+            //   Utilizando o padrão Builder, podemos construir relatórios passo a passo, evitando construtores telescópicos e melhorando a legibilidade.
             // - Como garantir que configurações obrigatórias sejam definidas?
+            //   O Director pode garantir que certos métodos do Builder sejam chamados, e o próprio Builder pode validar os campos obrigatórios antes de gerar o relatório.
             // - Como reutilizar configurações comuns entre relatórios?
+            //   Podemos criar métodos/funções auxiliares para aplicar configurações padronizadas no Builder, ou criar subclasses de Builder para cenários específicos.
             // - Como tornar o processo de criação mais legível e fluente?
+            //   O uso de métodos fluentes (return this no Builder) permite encadear configurações de maneira clara e expressiva.
         }
     }
 }
